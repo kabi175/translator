@@ -1,12 +1,11 @@
 package markdown
 
-import "fmt"
-
 type contanier struct {
 	start int
 	end   int
 	tag   int8
 }
+
 type contaniers []contanier
 
 func (c contaniers) Swap(i, j int) {
@@ -27,16 +26,18 @@ func (c contaniers) Less(i, j int) bool {
 	return false
 }
 
-func (c contaniers) Overlap() contaniers {
+func (c contaniers) Validate() contaniers {
 	var (
 		valid contaniers
 		last  int
 	)
 
 	for cur := range c {
-		last = len(valid) - 1
-		if cur-1 >= 0 && last >= 0 && valid[last].end >= c[cur].start {
-			fmt.Println("pop valid ", valid[last-1])
+		last = len(valid)
+		if cur-1 >= 0 && last-1 >= 0 && valid[last-1].end >= c[cur].start {
+			if valid[last-1].end-valid[last-1].start > c[cur].end-c[cur].start {
+				continue
+			}
 			valid = valid[:last-1]
 		}
 		valid = append(valid, c[cur])

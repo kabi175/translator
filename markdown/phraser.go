@@ -6,33 +6,6 @@ import (
 	"sort"
 )
 
-const (
-	Header = iota
-	Bold
-	Italic
-	UnderLine
-	Img
-	Link
-	Para
-	Break
-)
-
-const (
-	h1     = `<h1>%s</h1>`
-	h2     = `<h2>%s</h2>`
-	h3     = `<h3>%s</h3>`
-	h4     = `<h4>%s</h4>`
-	h5     = `<h5>%s</h5>`
-	h6     = `<h6>%s</h6>`
-	strong = `<strong>%s</strong>`
-	i      = `<i>%s</i>`
-	u      = `<u>%s</u>`
-	p      = `<p>%s</p>`
-	img    = `<img src="%s" alt="%s"></img>`
-	ahref  = `<a href="%s">%s</a>`
-	br     = `<br>`
-)
-
 type engine struct {
 	header    *regexp.Regexp
 	bold      *regexp.Regexp
@@ -61,7 +34,6 @@ func (e *engine) process(markdown string, tag int8) contaniers {
 		htmlCn contaniers
 		exp    *regexp.Regexp
 	)
-
 	switch tag {
 	case Header:
 		exp = e.header
@@ -156,19 +128,23 @@ func (e engine) construct(markdown string, htmlCn contaniers) string {
 		html string
 		last int = -1
 	)
+
 	for _, c := range htmlCn {
-		if last < c.start && c.start != 0 {
+		if last < c.start && c.start != 0 && len(markdown[last+1:c.start-1]) > 0 {
 			html += fmt.Sprintf(p, markdown[last+1:c.start-1])
 		}
 		html += e.phraseTag(c, markdown)
 		last = c.end
 	}
+
 	if last == -1 {
 		return fmt.Sprintf(p, markdown)
 	}
-	if last+1 < len(markdown) {
+
+	if last+1 < len(markdown) && len(markdown[last:]) > 0 {
 		html += fmt.Sprintf(p, markdown[last:])
 	}
+
 	return html
 }
 
@@ -182,5 +158,6 @@ func (e *engine) Phrase(markdown string) string {
 	htmlCn = append(htmlCn, e.process(markdown, Link)...)
 	htmlCn = append(htmlCn, e.process(markdown, Break)...)
 	sort.Sort(htmlCn)
+	htmlCn = htmlCn.Validate()
 	return e.construct(markdown, htmlCn)
 }

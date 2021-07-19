@@ -18,7 +18,7 @@ func TestContanierSort(t *testing.T) {
 	}
 }
 
-func TestContanierOverlap(t *testing.T) {
+func TestContanierValidate(t *testing.T) {
 	var c contaniers = contaniers{
 		{0, 1, 1},
 		{2, 3, 1},
@@ -32,6 +32,8 @@ func TestContanierOverlap(t *testing.T) {
 	if got != true {
 		t.Errorf("Contanier not sorted\n%v\n", c)
 	}
-	newC := c.Overlap()
-	t.Error(newC)
+	newC := c.Validate()
+	if newC.Len() != 3 {
+		t.Error(newC)
+	}
 }
